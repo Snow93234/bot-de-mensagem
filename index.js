@@ -1,90 +1,100 @@
+// 🌍 Carrega as variáveis de ambiente
 require("dotenv").config();
+
+// 🧠 Dependências principais
+const express = require("express");
 const { Client, GatewayIntentBits, EmbedBuilder } = require("discord.js");
 
+// ⚙️ Inicia o servidor web (Render + UptimeRobot)
+const app = express();
+const port = process.env.PORT || 3000;
+
+app.get("/", (req, res) => {
+  res.send("✅ Bot HorizonMC online e funcionando!");
+});
+
+app.listen(port, () => console.log(`🌐 Servidor ativo na porta ${port}`));
+
+// 💬 Inicia o bot
 const client = new Client({
   intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages],
 });
 
-// 🧡 IDs dos canais (troque pelos reais)
-const CANAL_3H = "1407081682409881616";
-const CANAL_5H = "1407081682409881616";
-const CANAL_7H = "1407081682409881616";
-const CANAL_8H = "1407081682409881616";
+// 🧡 ID do canal geral (mesmo canal para todas as mensagens)
+const CANAL = "1407081682409881616";
 
 client.once("ready", () => {
   console.log(`✅ Bot logado como ${client.user.tag}`);
 
-  // 🎮 Status / Bio
-  client.user.setActivity("Enviando mensagens automáticas no HorizonMC 💬", {
-    type: "PLAYING",
+  client.user.setActivity("HorizonMC 💬 Mensagens automáticas", {
+    type: 0, // 0 = PLAYING
   });
 
-  // 🔸 Função para criar embeds
+  // 🔸 Cria embeds personalizados
   const criarEmbed = (titulo, descricao, emoji) =>
     new EmbedBuilder()
-      .setColor("#ff7b00") // Laranja Horizon
+      .setColor("#ff7b00")
       .setTitle(`${emoji} ${titulo}`)
       .setDescription(descricao)
       .setFooter({ text: "Sistema Automático • HorizonMC" })
       .setTimestamp();
 
-  // 🔹 Enviar mensagens automáticas
-  const enviar3h = () => {
-    const canal = client.channels.cache.get(CANAL_3H);
-    if (!canal) return;
-    const embed = criarEmbed(
-      "Mensagem automática - 3 horas",
-      "> ⚠️ **Atenção!**\nAntes de interagir, leia as regras no canal <#1407081682183393331> para evitar punições e manter um bom ambiente! 💬",
-      "🕒"
-    );
-    canal.send({ embeds: [embed] });
+  // 🔹 Funções de envio
+  const enviarMsg = (titulo, descricao, emoji) => {
+    const canal = client.channels.cache.get(CANAL);
+    if (!canal) return console.log("⚠️ Canal não encontrado!");
+    const embed = criarEmbed(titulo, descricao, emoji);
+    canal.send({ embeds: [embed] }).catch(console.error);
   };
 
-  const enviar5h = () => {
-    const canal = client.channels.cache.get(CANAL_5H);
-    if (!canal) return;
-    const embed = criarEmbed(
-      "Mensagem automática - 5 horas",
-      "**🎮 Procurando o IP do servidor? Aqui está!**\n\n💻 **Java Edition:** `horizonmc.srvmc.com`\n📱 **Bedrock Edition:** `horizonmc.srvmc.com`\n🌐 *(Caso não funcione)* use: `sp-06.magnohost.com.br`\n🔒 **Porta:** `25503`",
-      "⏰"
+  // ⏱️ Enviar mensagens em intervalos diferentes
+  const startMensagens = () => {
+    // 2h
+    enviarMsg(
+      "Mensagem automática - 2 horas",
+      "> 💡 **Dica:** Use o comando `/help` ou veja nossos tutoriais para aprender mais sobre o HorizonMC!",
+      "🕑"
     );
-    canal.send({ embeds: [embed] });
+    setInterval(() => {
+      enviarMsg(
+        "Mensagem automática - 2 horas",
+        ">  ⚠️ Atenção!
+Antes de interagir, leia as regras no canal https://discord.com/channels/1407081681386475551/1407081682183393331 para evitar punições e manter um bom ambiente! 💬",
+        "🕑"
+      );
+    }, 2 * 60 * 60 * 1000);
+
+    // 3h
+    setInterval(() => {
+      enviarMsg(
+        "Mensagem automática - 3 horas",
+        "Convide amigos e ganhe recompensas incríveis!",
+        "🕒"
+      );
+    }, 3 * 60 * 60 * 1000);
+
+    // 5h
+    setInterval(() => {
+      enviarMsg(
+        "Mensagem automática - 5 horas",
+        "**🎮 IP do servidor:**\n💻 Java: `horizonmc.srvmc.com`\n📱 Bedrock: `horizonmc.srvmc.com`\n🔒 Porta: `25503`",
+        "⏰"
+      );
+    }, 5 * 60 * 60 * 1000);
+
+    // 7h
+    setInterval(() => {
+      enviarMsg(
+        "Mensagem automática - 7 horas",
+        "> 💎 **Confira nossos Kits e VIPs!**\nVeja em <#1407081682707943590> e <#1407803905722810519>",
+        "⌛"
+      );
+    }, 7 * 60 * 60 * 1000);
   };
 
-  const enviar7h = () => {
-    const canal = client.channels.cache.get(CANAL_7H);
-    if (!canal) return;
-    const embed = criarEmbed(
-      "Mensagem automática - 7 horas",
-      "> 💎 **Confira nossos Kits e VIPs!**\nVeja todos os detalhes nos canais abaixo:\n🔗 <#1407081682707943590>\n🔗 <#1407803905722810519>",
-      "⌛"
-    );
-    canal.send({ embeds: [embed] });
-  };
-
-  const enviar8h = () => {
-    const canal = client.channels.cache.get(CANAL_8H);
-    if (!canal) return;
-    const embed = criarEmbed(
-      "Mensagem automática - 8 horas",
-      "**🎫 Quer abrir um ticket?**\nAbra no canal 👉 <#1407081682548428997>",
-      "🕗"
-    );
-    canal.send({ embeds: [embed] });
-  };
-
-  // ⏱️ Enviar imediatamente e depois em intervalos
-  enviar3h();
-  setInterval(enviar3h, 3 * 60 * 60 * 1000);
-
-  enviar5h();
-  setInterval(enviar5h, 5 * 60 * 60 * 1000);
-
-  enviar7h();
-  setInterval(enviar7h, 7 * 60 * 60 * 1000);
-
-  enviar8h();
-  setInterval(enviar8h, 8 * 60 * 60 * 1000);
+  // Inicia o sistema de mensagens
+  startMensagens();
 });
 
+// 🚀 Login do bot
 client.login(process.env.TOKEN);
